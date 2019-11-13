@@ -11,6 +11,7 @@
 from bs4                             import BeautifulSoup
 from os.path                         import expanduser
 from selenium                        import webdriver
+from selenium.common.exceptions      import NoSuchElementException        
 from selenium.webdriver.common.by    import By
 from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.ui   import Select
@@ -18,6 +19,13 @@ from selenium.webdriver.support.ui   import WebDriverWait
 from selenium.webdriver.support      import expected_conditions as ec
 import re
 import sys
+import time
+
+def click(driver, key):
+    print("clicking ... {}".format(key))
+    driver                                 \
+        .find_element_by_css_selector(key) \
+        .click()
 
 def get_option(headless):
     options = webdriver.ChromeOptions()
@@ -25,12 +33,12 @@ def get_option(headless):
         options.add_argument('--headless')
     return options
 
-headless           = "--headless" in sys.argv
-driver             = webdriver.Chrome(
-                         "./drivers/chromedriver78", # XXX needs to be fixed
-                         options=get_option(headless)
-                     )
-wait               = WebDriverWait(driver, 7)
+headless = "--headless" in sys.argv
+driver   = webdriver.Chrome(
+               "./drivers/chromedriver78", # XXX needs to be fixed
+               options=get_option(headless)
+           )
+wait     = WebDriverWait(driver, 7)
 
 args = [x for x in sys.argv[1:] if x.startswith('https://github.com/')]
 
@@ -50,10 +58,19 @@ driver.get(url)
 
 repos = []
 
-for line in driver.page_source.encode('utf-8').split('\n'):
-    match = re.search("/{}/[^/^\"]+".format(user), line)
-    if match and (not match.group(0) in repos):
-        repos.append(match.group(0))
-        print(match.group(0))
+def collect(page_counter):
+    if(page_counter == 0):
+        return
 
+    source = driver.page_source.encode('utf-8')
+    for line in source.split('\n'):
+        match = re.search("/{}/[^/^\"]+".format(user), line)
+        if match and (not match.group(0) in repos):
+            repos.append(match.group(0))
+            print(match.group(0))
+    if 'btn btn-outline BtnGroup-item' in source:
+        click(driver, 'a.btn.btn-outline.BtnGroup-item')
+        time.sleep(3)
+        collect(page_counter - 1)
 
+collect(8)
