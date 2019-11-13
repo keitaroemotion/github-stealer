@@ -16,6 +16,7 @@ from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.ui   import Select
 from selenium.webdriver.support.ui   import WebDriverWait
 from selenium.webdriver.support      import expected_conditions as ec
+import re
 import sys
 
 def get_option(headless):
@@ -26,7 +27,33 @@ def get_option(headless):
 
 headless           = "--headless" in sys.argv
 driver             = webdriver.Chrome(
-                         "./chromedriver", # XXX needs to be fixed
+                         "./drivers/chromedriver78", # XXX needs to be fixed
                          options=get_option(headless)
                      )
 wait               = WebDriverWait(driver, 7)
+
+args = [x for x in sys.argv[1:] if x.startswith('https://github.com/')]
+
+if len(args) == 0:
+    print("\nURL required.\n\n")
+    sys.exit()
+
+url = re.search('https://[^/]+/[^/]+', args[0])
+
+if not url:
+    print("\nURL not found.\n\n")
+    sys.exit()
+
+user = url.group(0).replace("https://github.com/", "")
+url  = "{}?tab=repositories".format(url.group(0))
+driver.get(url)
+
+repos = []
+
+for line in driver.page_source.encode('utf-8').split('\n'):
+    match = re.search("/{}/[^/^\"]+".format(user), line)
+    if match and (not match.group(0) in repos):
+        repos.append(match.group(0))
+        print(match.group(0))
+
+
