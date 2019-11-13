@@ -9,6 +9,7 @@
 #
 
 from bs4                             import BeautifulSoup
+from concurrent                      import futures
 from os.path                         import expanduser
 from selenium                        import webdriver
 from selenium.common.exceptions      import NoSuchElementException        
@@ -17,8 +18,10 @@ from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.support.ui   import Select
 from selenium.webdriver.support.ui   import WebDriverWait
 from selenium.webdriver.support      import expected_conditions as ec
+import os
 import re
 import sys
+import threading
 import time
 
 def click(driver, key):
@@ -73,4 +76,20 @@ def collect(page_counter):
         time.sleep(3)
         collect(page_counter - 1)
 
-collect(8)
+collect(3)
+
+def sample_func(index, user):
+    os.system(
+           "git clone git@github.com:{}.git {}"
+               .format(
+                   repos[index],
+                   repos[index]
+               )
+       )
+
+future_list = []
+with futures.ThreadPoolExecutor(max_workers=20) as executor:
+    for i in range(len(repos)):
+        future = executor.submit(fn=sample_func, index=i, user=user)
+        future_list.append(future)
+    _ = futures.as_completed(fs=future_list)
