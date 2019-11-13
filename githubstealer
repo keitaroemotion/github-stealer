@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+#
+# usage
+# 
+# githubstealer [name or url]
+#
+# Then retrieves (clones) all the related github repositories in ./[name]/*
+#
+
+from bs4                             import BeautifulSoup
+from os.path                         import expanduser
+from selenium                        import webdriver
+from selenium.webdriver.common.by    import By
+from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.support.ui   import Select
+from selenium.webdriver.support.ui   import WebDriverWait
+from selenium.webdriver.support      import expected_conditions as ec
+import sys
+
+def get_option(headless):
+    options = webdriver.ChromeOptions()
+    if headless == True:
+        options.add_argument('--headless')
+    return options
+
+headless           = "--headless" in sys.argv
+driver             = webdriver.Chrome(
+                         "./chromedriver", # XXX needs to be fixed
+                         options=get_option(headless)
+                     )
+wait               = WebDriverWait(driver, 7)
