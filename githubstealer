@@ -80,7 +80,7 @@ collect(3)
 
 def sample_func(index, user):
     os.system(
-           "git clone git@github.com:{}.git {}"
+           "git clone git@github.com:{}.git .{}"
                .format(
                    repos[index],
                    repos[index]
