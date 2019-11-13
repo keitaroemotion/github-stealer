@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+cp drivers/chromedriver78 /usr/local/bin
+cp githubstealer /usr/local/bin

@@ -37,12 +37,6 @@ def get_option(headless):
     return options
 
 headless = "--headless" in sys.argv
-driver   = webdriver.Chrome(
-               "./drivers/chromedriver78", # XXX needs to be fixed
-               options=get_option(headless)
-           )
-wait     = WebDriverWait(driver, 7)
-
 args = [x for x in sys.argv[1:] if x.startswith('https://github.com/')]
 
 if len(args) == 0:
@@ -54,6 +48,12 @@ url = re.search('https://[^/]+/[^/]+', args[0])
 if not url:
     print("\nURL not found.\n\n")
     sys.exit()
+
+driver   = webdriver.Chrome(
+               "/usr/local/bin/chromedriver78", # XXX needs to be fixed
+               options=get_option(headless)
+           )
+wait     = WebDriverWait(driver, 7)
 
 user = url.group(0).replace("https://github.com/", "")
 url  = "{}?tab=repositories".format(url.group(0))
